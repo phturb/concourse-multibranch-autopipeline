@@ -1,0 +1,30 @@
+resources:
+  - name: git
+    type: git
+    icon: github-circle
+    source:
+      uri: https://github.com/phturb/concourse-multibranch-autopipeline.git
+  - name: branch-script
+    type: git
+    icon: github-circle
+    source:
+      uri: https://github.com/phturb/concourse-multibranch-autopipeline.git
+
+jobs:
+  - name: multibranch-pipeline-generator
+    public: true
+    plan:
+      - get: git
+        trigger: true
+      - get: branch-script
+      - tasks: create-branch-pipeline
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: busybox
+          params:
+            GIT_REPO: git
+          run:
+            path: ./branch-script/check-branch.sh
