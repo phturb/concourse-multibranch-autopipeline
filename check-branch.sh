@@ -1,2 +1,1 @@
-cd ../${GIT_REPO}
-echo $(git branch)
+python main.py
