@@ -1,2 +1,2 @@
-cd /${GIT_REPO}/
+cd ../${GIT_REPO}
 echo $(git branch)

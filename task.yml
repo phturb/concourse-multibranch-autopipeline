@@ -10,27 +10,19 @@ resources:
     source:
       uri: https://github.com/phturb/concourse-multibranch-autopipeline.git
 
-jobs:
-  - name: multibranch-pipeline-generator
-    public: true
     plan:
       - get: git
         trigger: true
       - get: branch-script
       - task: create-branch-pipeline
         config:
-          inputs:
-            - name: git
-            - name: branch-script
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source:
               repository: busybox
           params:
             GIT_REPO: git
           run:
-            dir: ./branch-script
-            path: sh
-            args:
-              - ./check-branch.sh
+            path: echo
+            args: ["$(ls)"]
