@@ -18,13 +18,14 @@ for branch_info in j:
     branch_name = branch_info['name']
     new_ressource = copy.deepcopy(template_yml['resources'][0])
     new_ressource['source']['branch'] = branch_name
+    new_ressource['name'] = 'git-' + branch_name
     new_yaml['resources'].append(new_ressource)
     for job in template_yml['jobs']:
         new_job = copy.deepcopy(job)
         new_job['name'] = new_job['name'] + '-' + branch_name
         for pos, item in enumerate(new_job['plan']):
             if item.get('get') and item.get('get') == template_yml['resources'][0]['name']:
-                new_job['plan'][pos]['get'] = branch_name
+                new_job['plan'][pos]['get'] = 'git-'+branch_name
         new_yaml['jobs'].append(new_job)
 with open('../pipeline/new_pipeline.yaml', 'w') as f:
     noalias_dumper = yaml.dumper.SafeDumper
