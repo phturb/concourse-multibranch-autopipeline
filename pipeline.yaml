@@ -21,7 +21,7 @@ jobs:
             source:
               repository: ddphilippeturner/apline-python-script
           params:
-            GIT_REPO: git
+            GIT_REPO: branch-script
           run:
             dir: ./branch-script
             path: sh
