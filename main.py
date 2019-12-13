@@ -44,7 +44,6 @@ def main():
         template_yml = yaml.load(f, Loader=yaml.FullLoader)
     new_yaml = copy.deepcopy(template_yml)
     new_yaml['jobs'] = []
-    new_yaml['groups'] = []
 
     print(bcolors.UNDERLINE + 'Gathering branch info from repository' + bcolors.ENDC)
 
@@ -75,7 +74,8 @@ def main():
             ' - New ressource name : {}'.format(new_yaml['resources'][ressource_i]['name']))
 
         new_yaml['resources'].append(new_ressource)
-        new_group = {'name': branch_name, 'jobs': []}
+        if not new_yaml.get('groups'):
+            new_yaml['groups'] = {'name': 'main', 'jobs': []}
         for job in template_yml['jobs']:
             new_job = copy.deepcopy(job)
             new_job = json.dumps(new_job)
@@ -87,7 +87,8 @@ def main():
             print(
                 ' - New job name : {}'.format(job['name'] + '-' + branch_name))
 
-            new_group['jobs'].append(job['name'] + '-' + branch_name)
+            new_yaml['groups'][0]['jobs'].append(
+                job['name'] + '-' + branch_name)
             new_job = json.loads(new_job)
             for j, plan in enumerate(new_job['plan']):
                 if plan.get('task') and plan.get('file'):
@@ -97,7 +98,6 @@ def main():
                         ressource_to_replace: 'git-' + branch_name}
                     print(' - I/O mapping for task file {}'.format(plan.get('file')))
             new_yaml['jobs'].append(new_job)
-        new_yaml['groups'].append(new_group)
     new_yaml['resources'].pop(ressource_i)
 
     print(bcolors.BLUE + 'New groups :' + bcolors.ENDC)
