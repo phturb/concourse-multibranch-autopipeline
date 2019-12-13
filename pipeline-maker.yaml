@@ -9,10 +9,10 @@ resource_types:
       repository: concourse/time-resource
 
 resources:
-  - name: 10m
+  - name: 5m
     type: time
     source:
-      interval: 10m
+      interval: 5m
       start: 6:00 AM
       stop: 7:00 PM
       location: America/Montreal
