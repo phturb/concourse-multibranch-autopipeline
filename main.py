@@ -31,7 +31,6 @@ def find_ressource_index(ressources, value_to_find):
 
 
 def main():
-    new_yaml = {'resources': [], 'jobs': [], 'groups': []}
     project = os.getenv('PROJECT')
     repo = os.getenv('REPO')
     ressource_to_replace = os.getenv('REPLACED_RESSOURCE')
@@ -73,9 +72,11 @@ def main():
             new_job = json.dumps(new_job)
             new_job.replace(job['name'], job['name'] + '-' + branch_name)
             new_job.replace(ressource_to_replace, 'git-' + branch_name)
-            new_job['name'] = new_job['name'] + '-' + branch_name
-            print(' - New job name : {}'.format(new_job['name']))
-            new_group['jobs'].append(new_job['name'])
+            print(
+                ' - New job name : {}'.format(job['name'] + '-' + branch_name))
+            new_group['jobs'].append(job['name'] + '-' + branch_name)
+            new_job = json.loads(new_job)
+            new_yaml['jobs'].append(new_job)
         new_yaml['groups'].append(new_group)
     new_yaml['resources'].pop(ressource_i)
     print(bcolors.BLUE + 'New groups :' + bcolors.ENDC)
