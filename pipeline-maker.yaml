@@ -17,9 +17,9 @@ resources:
       target: "http://172.20.0.3:8080"
       insecure: "true"
       teams:
-        - name: main
-          username: test
-          password: test
+        - name: ((team_name))
+          username: ((pass))
+          password: ((user))
 
 jobs:
   - name: multibranch-pipeline-generator
@@ -33,7 +33,7 @@ jobs:
           inputs:
             - name: branch-script
           outputs:
-            - name: pipeline
+            - name: ((out_folder))
           platform: linux
           image_resource:
             type: docker-image
@@ -41,9 +41,11 @@ jobs:
               repository: ddphilippeturner/alpine-python-script
               tag: "1.0"
           params:
-            GIT_REPO: git
-            PROJECT: phturb
-            REPO: concourse-multibranch-autopipeline
+            REPLACED_RESSOURCE: ((replaced_ressource))
+            PROJECT: ((project))
+            REPO: ((repo))
+            OUT_FOLDER: ((out_folder))
+            PIPELINE_FILENAME: ((pipeline_filename))
           run:
             dir: ./branch-script
             path: python
@@ -52,6 +54,16 @@ jobs:
       - put: my-pipeline
         params:
           pipelines:
-            - name: test
-              team: main
+            - name: ((pipeline_name))
+              team: ((team_name))
               config_file: pipeline/new_pipeline.yaml
+
+pipeline_name: branch-result
+team_name: main
+pipeline_filename: pipeline.yaml
+out_folder: pipeline
+repo: concourse-multibranch-autopipeline
+project: phturb
+replaced_ressource: branch-script
+pass: test
+user: test
