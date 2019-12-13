@@ -41,6 +41,9 @@ def main():
         pipeline_file, ressource_to_replace) + bcolors.ENDC)
     with open(pipeline_file, 'r') as f:
         template_yml = yaml.load(f, Loader=yaml.FullLoader)
+    new_yaml = copy.deepcopy(template_yml)
+    new_yaml['jobs'] = []
+    new_yaml['groups'] = []
     print(bcolors.UNDERLINE + 'Gathering branch info from repository' + bcolors.ENDC)
     res = requests.get(
         "https://api.github.com/repos/{}/{}/branches".format(project, repo))
@@ -61,19 +64,20 @@ def main():
         new_ressource = copy.deepcopy(template_yml['resources'][ressource_i])
         new_ressource['source']['branch'] = branch_name
         new_ressource['name'] = 'git-' + branch_name
-        print(' - New ressource name : {}'.format(new_ressource['name']))
+        print(
+            ' - New ressource name : {}'.format(new_yaml['resources'][ressource_i]['name']))
         new_yaml['resources'].append(new_ressource)
         new_group = {'name': branch_name, 'jobs': []}
         for job in template_yml['jobs']:
             new_job = copy.deepcopy(job)
+            new_job = json.dumps(new_job)
+            new_job.replace(job['name'], job['name'] + '-' + branch_name)
+            new_job.replace(ressource_to_replace, 'git-' + branch_name)
             new_job['name'] = new_job['name'] + '-' + branch_name
             print(' - New job name : {}'.format(new_job['name']))
-            for pos, item in enumerate(new_job['plan']):
-                if item.get('get') and item.get('get') == template_yml['resources'][0]['name']:
-                    new_job['plan'][pos]['get'] = 'git-'+branch_name
-            new_yaml['jobs'].append(new_job)
             new_group['jobs'].append(new_job['name'])
         new_yaml['groups'].append(new_group)
+    new_yaml['resources'].pop(ressource_i)
     print(bcolors.BLUE + 'New groups :' + bcolors.ENDC)
     for group in new_yaml['groups']:
         print(' - {}'.format(group['name']))
