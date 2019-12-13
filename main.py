@@ -32,10 +32,18 @@ def find_ressource_index(ressources, value_to_find):
 
 def main():
     project = os.getenv('PROJECT')
+    git_type = os.getenv('GIT_TYPE')
+    git_api = os.getenv('GIT_API')
     repo = os.getenv('REPO')
     ressource_to_replace = os.getenv('REPLACED_RESSOURCE')
     out_folder = os.getenv('OUT_FOLDER')
     pipeline_file = os.pardir + '/' + os.getenv('PIPELINE_FILENAME')
+    try:
+        username = os.getenv('API_USERNAME')
+        password = os.getenv('API_PASSWORD')
+    except:
+        username = ""
+        password = ""
 
     print(bcolors.HEADER + 'Opening the file {} to replace the ressource : {}'.format(
         pipeline_file, ressource_to_replace) + bcolors.ENDC)
@@ -46,13 +54,17 @@ def main():
     new_yaml['jobs'] = []
 
     print(bcolors.UNDERLINE + 'Gathering branch info from repository' + bcolors.ENDC)
-
-    res = requests.get(
-        "https://api.github.com/repos/{}/{}/branches".format(project, repo))
+    if username != "" and password != "":
+        res = requests.get(
+            git_api, auth=requests.auth.HTTPBasicAuth(username, password))
+    else:
+        res = requests.get(git_api)
     if(res.status_code != 200):
         print(bcolors.FAIL + 'Error with branches gathering request' + bcolors.ENDC)
         sys.exit(1)
     j = res.json()
+    if git_type == 'bitbucket':
+        j = j['values']
     ressource_i = find_ressource_index(
         template_yml['resources'], ressource_to_replace)
     if(ressource_i == -1):
@@ -61,7 +73,10 @@ def main():
 
         sys.exit(1)
     for branch_info in j:
-        branch_name = branch_info['name']
+        if git_type == 'bitbucket':
+            branch_name = branch_info['displayId']
+        else:
+            branch_name = branch_info['name']
 
         print(bcolors.BLUE +
               'Creating job for branch name : {}'.format(branch_name) + bcolors.ENDC)

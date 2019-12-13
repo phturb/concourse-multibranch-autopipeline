@@ -65,6 +65,10 @@ jobs:
             REPO: ((repo))
             OUT_FOLDER: ((out_folder))
             PIPELINE_FILENAME: pipeline-git/((pipeline_filename))
+            GIT_TYPE: ((git_type))
+            GIT_API: ((api_url))
+            API_USERNAME: ""
+            API_PASSWORD: ""
           run:
             dir: ./branch-script
             path: python

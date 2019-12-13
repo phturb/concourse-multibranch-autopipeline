@@ -1,8 +1,10 @@
 pipeline_name: branch-result
 team_name: main
+git_type: github
 pipeline_filename: pipeline.yaml
 out_folder: pipeline
 repo: concourse-multibranch-autopipeline
+api_url: https://api.github.com/repos/phturb/concourse-multibranch-autopipeline/branches
 project: phturb
 replaced_ressource: branch-script
 pass: test
