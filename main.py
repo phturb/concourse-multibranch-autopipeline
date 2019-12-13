@@ -26,7 +26,6 @@ for branch_info in j:
             if item.get('get') and item.get('get') == template_yml['resources'][0]['name']:
                 new_job['plan'][pos]['get'] = branch_name
         new_yaml['jobs'].append(new_job)
-os.mkdir('pipeline')
 with open('pipeline/new_pipeline.yaml', 'w') as f:
     noalias_dumper = yaml.dumper.SafeDumper
     noalias_dumper.ignore_aliases = lambda self, data: True
