@@ -41,7 +41,7 @@ def main():
         pipeline_file, ressource_to_replace) + bcolors.ENDC)
     with open(pipeline_file, 'r') as f:
         template_yml = yaml.load(f, Loader=yaml.FullLoader)
-    print('Gathering branch info from repository')
+    print(bcolors.UNDERLINE + 'Gathering branch info from repository' + bcolors.ENDC)
     res = requests.get(
         "https://api.github.com/repos/{}/{}/branches".format(project, repo))
     if(res.status_code != 200):
@@ -77,7 +77,9 @@ def main():
     print(bcolors.BLUE + 'New groups :' + bcolors.ENDC)
     for group in new_yaml['groups']:
         print(' - {}'.format(group['name']))
-    print('New pipeline done, the pipeline will be written in {}/{}/new_pipeline.yaml'.format(os.pardir, out_folder))
+    print(bcolors.GREEN + 'New pipeline creation done' + bcolors.ENDC)
+    print(bcolors.UNDERLINE + 'The pipeline will be written in {}/{}/new_pipeline.yaml'.format(
+        os.pardir, out_folder) + bcolors.ENDC)
     with open('{}/{}/new_pipeline.yaml'.format(os.pardir, out_folder), 'w') as f:
         noalias_dumper = yaml.dumper.SafeDumper
         noalias_dumper.ignore_aliases = lambda self, data: True
