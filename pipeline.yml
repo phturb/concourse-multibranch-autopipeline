@@ -11,8 +11,6 @@ jobs:
     plan:
       - get: branch-script
         trigger: true
-      - get: number-2
-        trigger: false
       - task: create-branch-pipeline
         config:
           inputs:
