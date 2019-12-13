@@ -13,7 +13,7 @@ def find_ressource_index(ressources, value_to_find):
     return -1
 
 
-def main(args):
+def main():
     new_yaml = {'resources': [], 'jobs': [], 'groups': []}
     project = os.getenv('PROJECT')
     repo = os.getenv('REPO')

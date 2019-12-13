@@ -57,13 +57,3 @@ jobs:
             - name: ((pipeline_name))
               team: ((team_name))
               config_file: pipeline/new_pipeline.yaml
-
-pipeline_name: branch-result
-team_name: main
-pipeline_filename: pipeline.yaml
-out_folder: pipeline
-repo: concourse-multibranch-autopipeline
-project: phturb
-replaced_ressource: branch-script
-pass: test
-user: test
