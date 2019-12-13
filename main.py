@@ -75,7 +75,7 @@ def main():
 
         new_yaml['resources'].append(new_ressource)
         if not new_yaml.get('groups'):
-            new_yaml['groups'] = {'name': 'main', 'jobs': []}
+            new_yaml['groups'] = [{'name': 'main', 'jobs': []}]
         for job in template_yml['jobs']:
             new_job = copy.deepcopy(job)
             new_job = json.dumps(new_job)
