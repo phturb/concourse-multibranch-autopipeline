@@ -90,7 +90,7 @@ def main():
             new_group['jobs'].append(job['name'] + '-' + branch_name)
             new_job = json.loads(new_job)
             for j, plan in enumerate(new_job['plan']):
-                if plan.get('task'):
+                if plan.get('task') and plan.get('file'):
                     new_job['plan'][j]['input_mapping'] = {
                         ressource_to_replace, job['name'] + '-' + branch_name}
             new_yaml['jobs'].append(new_job)

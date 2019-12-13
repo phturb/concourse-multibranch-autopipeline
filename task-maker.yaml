@@ -1,0 +1,15 @@
+inputs:
+  - name: branch-script
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: ddphilippeturner/alpine-python-script
+    tag: "1.0"
+params:
+  GIT_REPO: branch-script
+run:
+  dir: ./branch-script
+  path: sh
+  args:
+    - ./check-branch.sh
