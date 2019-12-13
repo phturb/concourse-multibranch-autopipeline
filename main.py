@@ -36,7 +36,7 @@ def main():
     repo = os.getenv('REPO')
     ressource_to_replace = os.getenv('REPLACED_RESSOURCE')
     out_folder = os.getenv('OUT_FOLDER')
-    pipeline_file = os.pardir + os.getenv('PIPELINE_FILENAME')
+    pipeline_file = os.pardir + '/' + os.getenv('PIPELINE_FILENAME')
     print(bcolors.HEADER + 'Opening the file {} to replace the ressource : {}'.format(
         pipeline_file, ressource_to_replace) + bcolors.ENDC)
     with open(pipeline_file, 'r') as f:
