@@ -69,8 +69,10 @@ def main():
     ressource_i = find_ressource_index(
         template_yml['resources'], ressource_to_replace)
     if(ressource_i == -1):
+        print(template_yml)
         print(bcolors.FAIL +
               'Ressource that needs to be changed doesn\'t exist' + bcolors.ENDC)
+        print(template_yml['resources'])
 
         sys.exit(1)
     for branch_info in j:
