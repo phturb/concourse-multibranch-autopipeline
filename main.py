@@ -66,6 +66,7 @@ def main():
         print(
             ' - New ressource name : {}'.format(new_yaml['resources'][ressource_i]['name']))
         new_yaml['resources'].append(new_ressource)
+        print(json.dumps(new_yaml))
         new_group = {'name': branch_name, 'jobs': []}
         for job in template_yml['jobs']:
             new_job = copy.deepcopy(job)
