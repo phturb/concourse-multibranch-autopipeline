@@ -38,6 +38,7 @@ jobs:
         config:
           inputs:
             - name: branch-script
+            - name: pipeline-git
           outputs:
             - name: ((out_folder))
           platform: linux
