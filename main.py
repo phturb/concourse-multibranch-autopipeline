@@ -93,6 +93,9 @@ def main():
                 if plan.get('task') and plan.get('file'):
                     new_job['plan'][j]['input_mapping'] = {
                         ressource_to_replace: 'git-' + branch_name}
+                    new_job['plan'][j]['output_mapping'] = {
+                        ressource_to_replace: 'git-' + branch_name}
+                    print(' - I/O mapping for task file {}'.format(plan.get('file')))
             new_yaml['jobs'].append(new_job)
         new_yaml['groups'].append(new_group)
     new_yaml['resources'].pop(ressource_i)
