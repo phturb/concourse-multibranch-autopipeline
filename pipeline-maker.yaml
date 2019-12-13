@@ -9,33 +9,32 @@ resource_types:
       repository: concourse/time-resource
 
 resources:
-  resources:
-    - name: 5m
-      type: time
-      source:
-        interval: 5m
-        start: 6:00 AM
-        stop: 7:00 PM
-    - name: branch-script
-      type: git
-      icon: github-circle
-      source:
-        uri: https://github.com/phturb/concourse-multibranch-autopipeline.git
-    - name: pipeline-git
-      type: git
-      icon: github-circle
-      source:
-        uri: https://github.com/phturb/concourse-multibranch-autopipeline.git
-    - name: my-pipeline
-      type: concourse-pipeline
-      icon: pipe
-      source:
-        target: "http://172.20.0.3:8080"
-        insecure: "true"
-        teams:
-          - name: ((team_name))
-            username: ((pass))
-            password: ((user))
+  - name: 5m
+    type: time
+    source:
+      interval: 5m
+      start: 6:00 AM
+      stop: 7:00 PM
+  - name: branch-script
+    type: git
+    icon: github-circle
+    source:
+      uri: https://github.com/phturb/concourse-multibranch-autopipeline.git
+  - name: pipeline-git
+    type: git
+    icon: github-circle
+    source:
+      uri: https://github.com/phturb/concourse-multibranch-autopipeline.git
+  - name: my-pipeline
+    type: concourse-pipeline
+    icon: pipe
+    source:
+      target: "http://172.20.0.3:8080"
+      insecure: "true"
+      teams:
+        - name: ((team_name))
+          username: ((pass))
+          password: ((user))
 
 jobs:
   - name: multibranch-pipeline-generator
