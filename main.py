@@ -22,7 +22,7 @@ def main():
     pipeline_file = os.getenv('PIPELINE_FILENAME')
     print('Opening the file {} to replace the ressource : {}'.format(
         pipeline_file, ressource_to_replace))
-    with open('pipeline.yml', 'r') as f:
+    with open(pipeline_file, 'r') as f:
         template_yml = yaml.load(f, Loader=yaml.FullLoader)
     print('Gathering branch info from repository')
     res = requests.get(
