@@ -61,6 +61,7 @@ def main():
         res = requests.get(git_api)
     if(res.status_code != 200):
         print(bcolors.FAIL + 'Error with branches gathering request' + bcolors.ENDC)
+        print(res.json())
         sys.exit(1)
     j = res.json()
     if git_type == 'bitbucket':
