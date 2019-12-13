@@ -1,0 +1,89 @@
+jobs:
+- name: multibranch-pipeline-generator-master
+  plan:
+  - get: master
+    trigger: true
+  - get: number-2
+    trigger: false
+  - config:
+      image_resource:
+        source:
+          repository: ddphilippeturner/apline-python-script
+        type: docker-image
+      inputs:
+      - name: branch-script
+      params:
+        GIT_REPO: git
+      platform: linux
+      run:
+        args:
+        - ./check-branch.sh
+        dir: ./branch-script
+        path: sh
+    task: create-branch-pipeline
+  public: true
+- name: multibranch-pipeline-generator-test1
+  plan:
+  - get: test1
+    trigger: true
+  - get: number-2
+    trigger: false
+  - config:
+      image_resource:
+        source:
+          repository: ddphilippeturner/apline-python-script
+        type: docker-image
+      inputs:
+      - name: branch-script
+      params:
+        GIT_REPO: git
+      platform: linux
+      run:
+        args:
+        - ./check-branch.sh
+        dir: ./branch-script
+        path: sh
+    task: create-branch-pipeline
+  public: true
+- name: multibranch-pipeline-generator-test2
+  plan:
+  - get: test2
+    trigger: true
+  - get: number-2
+    trigger: false
+  - config:
+      image_resource:
+        source:
+          repository: ddphilippeturner/apline-python-script
+        type: docker-image
+      inputs:
+      - name: branch-script
+      params:
+        GIT_REPO: git
+      platform: linux
+      run:
+        args:
+        - ./check-branch.sh
+        dir: ./branch-script
+        path: sh
+    task: create-branch-pipeline
+  public: true
+resources:
+- icon: github-circle
+  name: branch-script
+  source:
+    branch: master
+    uri: https://github.com/phturb/concourse-multibranch-autopipeline.git
+  type: git
+- icon: github-circle
+  name: branch-script
+  source:
+    branch: test1
+    uri: https://github.com/phturb/concourse-multibranch-autopipeline.git
+  type: git
+- icon: github-circle
+  name: branch-script
+  source:
+    branch: test2
+    uri: https://github.com/phturb/concourse-multibranch-autopipeline.git
+  type: git
