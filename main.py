@@ -36,14 +36,18 @@ def main():
     ressource_to_replace = os.getenv('REPLACED_RESSOURCE')
     out_folder = os.getenv('OUT_FOLDER')
     pipeline_file = os.pardir + '/' + os.getenv('PIPELINE_FILENAME')
+
     print(bcolors.HEADER + 'Opening the file {} to replace the ressource : {}'.format(
         pipeline_file, ressource_to_replace) + bcolors.ENDC)
+
     with open(pipeline_file, 'r') as f:
         template_yml = yaml.load(f, Loader=yaml.FullLoader)
     new_yaml = copy.deepcopy(template_yml)
     new_yaml['jobs'] = []
     new_yaml['groups'] = []
+
     print(bcolors.UNDERLINE + 'Gathering branch info from repository' + bcolors.ENDC)
+
     res = requests.get(
         "https://api.github.com/repos/{}/{}/branches".format(project, repo))
     if(res.status_code != 200):
@@ -55,16 +59,21 @@ def main():
     if(ressource_i == -1):
         print(bcolors.FAIL +
               'Ressource that needs to be changed doesn\'t exist' + bcolors.ENDC)
+
         sys.exit(1)
     for branch_info in j:
         branch_name = branch_info['name']
+
         print(bcolors.BLUE +
               'Creating job for branch name : {}'.format(branch_name) + bcolors.ENDC)
+
         new_ressource = copy.deepcopy(template_yml['resources'][ressource_i])
         new_ressource['source']['branch'] = branch_name
         new_ressource['name'] = 'git-' + branch_name
+
         print(
             ' - New ressource name : {}'.format(new_yaml['resources'][ressource_i]['name']))
+
         new_yaml['resources'].append(new_ressource)
         new_group = {'name': branch_name, 'jobs': []}
         for job in template_yml['jobs']:
@@ -74,23 +83,33 @@ def main():
                 job['name'], job['name'] + '-' + branch_name)
             new_job = new_job.replace(
                 ressource_to_replace, 'git-' + branch_name)
+
             print(
                 ' - New job name : {}'.format(job['name'] + '-' + branch_name))
+
             new_group['jobs'].append(job['name'] + '-' + branch_name)
             new_job = json.loads(new_job)
+            for j, plan in enumerate(new_job['plan']):
+                if plan.get('task'):
+                    new_job['plan'][j]['input_mapping'] = {
+                        ressource_to_replace, job['name'] + '-' + branch_name}
             new_yaml['jobs'].append(new_job)
         new_yaml['groups'].append(new_group)
     new_yaml['resources'].pop(ressource_i)
+
     print(bcolors.BLUE + 'New groups :' + bcolors.ENDC)
+
     for group in new_yaml['groups']:
         print(' - {}'.format(group['name']))
     print(bcolors.GREEN + 'New pipeline creation done' + bcolors.ENDC)
     print(bcolors.UNDERLINE + 'The pipeline will be written in {}/{}/new_pipeline.yaml'.format(
         os.pardir, out_folder) + bcolors.ENDC)
+
     with open('{}/{}/new_pipeline.yaml'.format(os.pardir, out_folder), 'w') as f:
         noalias_dumper = yaml.dumper.SafeDumper
         noalias_dumper.ignore_aliases = lambda self, data: True
         yaml.dump(new_yaml, f, default_flow_style=False, Dumper=noalias_dumper)
+
     print(bcolors.GREEN + 'Job done !!!' + bcolors.ENDC)
 
 
