@@ -66,13 +66,14 @@ def main():
         print(
             ' - New ressource name : {}'.format(new_yaml['resources'][ressource_i]['name']))
         new_yaml['resources'].append(new_ressource)
-        print(json.dumps(new_yaml))
         new_group = {'name': branch_name, 'jobs': []}
         for job in template_yml['jobs']:
             new_job = copy.deepcopy(job)
             new_job = json.dumps(new_job)
-            new_job.replace(job['name'], job['name'] + '-' + branch_name)
-            new_job.replace(ressource_to_replace, 'git-' + branch_name)
+            new_job = new_job.replace(
+                job['name'], job['name'] + '-' + branch_name)
+            new_job = new_job.replace(
+                ressource_to_replace, 'git-' + branch_name)
             print(
                 ' - New job name : {}'.format(job['name'] + '-' + branch_name))
             new_group['jobs'].append(job['name'] + '-' + branch_name)
