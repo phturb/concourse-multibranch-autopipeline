@@ -192,7 +192,7 @@ def main():
         yaml.dump(new_yaml, f, default_flow_style=False, Dumper=noalias_dumper)
 
     print(bcolors.BLUE + 'Here is the new configuration for the pipeline' + bcolors.ENDC)
-    print(yaml.dumps(new_yaml))
+    print(yaml.dump(new_yaml))
     # Jobs done
     print(bcolors.GREEN + 'Job done !!!' + bcolors.ENDC)
 
