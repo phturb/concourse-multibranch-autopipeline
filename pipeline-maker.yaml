@@ -9,6 +9,13 @@ resource_types:
       repository: concourse/time-resource
 
 resources:
+  - name: pipeline-git
+    type: git
+    icon: github-circle
+    source:
+      disable_ci_skip: true
+      branch: master
+      uri: https://github.com/phturb/concourse-multibranch-autopipeline.git
   - name: 5m
     type: time
     source:
@@ -17,11 +24,6 @@ resources:
       stop: 7:00 PM
       location: America/Montreal
   - name: branch-script
-    type: git
-    icon: github-circle
-    source:
-      uri: https://github.com/phturb/concourse-multibranch-autopipeline.git
-  - name: pipeline-git
     type: git
     icon: github-circle
     source:
