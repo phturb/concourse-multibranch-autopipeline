@@ -59,6 +59,7 @@ def main():
     # Checking if there is branch exception
     try:
         branch_exception = os.getenv('BRANCH_EXCEPTION')
+        branch_exception = branch_exception.split(" ")
     except:
         branch_exception = []
 
