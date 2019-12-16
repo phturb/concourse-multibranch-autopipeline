@@ -69,12 +69,8 @@ def main():
     ressource_i = find_ressource_index(
         template_yml['resources'], ressource_to_replace)
     if(ressource_i == -1):
-        print(template_yml)
         print(bcolors.FAIL +
               'Ressource that needs to be changed doesn\'t exist' + bcolors.ENDC)
-        print(template_yml['resources'])
-
-        sys.exit(1)
     for branch_info in j:
         if git_type == 'bitbucket':
             branch_name = branch_info['displayId']
@@ -83,13 +79,23 @@ def main():
 
         print(bcolors.BLUE +
               'Creating job for branch name : {}'.format(branch_name) + bcolors.ENDC)
-
-        new_ressource = copy.deepcopy(template_yml['resources'][ressource_i])
+        if ressource_i == -1:
+            ressource_position = find_ressource_index(
+                'git-' + branch_name, ressource_to_replace)
+            if ressource_position == -1:
+                ressource_position = find_ressource_index(
+                    'git-master', ressource_to_replace)
+            else:
+                continue
+        else:
+            ressource_position = ressource_i
+        new_ressource = copy.deepcopy(
+            template_yml['resources'][ressource_position])
         new_ressource['source']['branch'] = branch_name
         new_ressource['name'] = 'git-' + branch_name
 
         print(
-            ' - New ressource name : {}'.format(new_yaml['resources'][ressource_i]['name']))
+            ' - New ressource name : {}'.format(new_yaml['resources'][ressource_position]['name']))
 
         new_yaml['resources'].append(new_ressource)
         if not new_yaml.get('groups'):
