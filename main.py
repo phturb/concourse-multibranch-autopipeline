@@ -82,11 +82,14 @@ def main():
     # Configuration de chacun des ligne de pipeline pour chaque branche
     for branch_info in j:
         # Definition du nom de la branche selon le type de repo
-        if git_type == 'bitbucket':
-            branch_name = branch_info['displayId']
-        else:
-            branch_name = branch_info['name']
 
+        if git_type == 'bitbucket':
+            branch_id = 'displayId'
+
+        else:
+            branch_id = 'name'
+
+        branch_name = branch_info[branch_id]
         print(bcolors.BLUE +
               'Creating job for branch name : {}'.format(branch_name) + bcolors.ENDC)
 
@@ -123,6 +126,16 @@ def main():
             if '-' + branch_name in job['name']:
                 new_yaml['jobs'].append(new_job)
                 new_yaml['groups'][0]['jobs'].append(job['name'])
+                continue
+            job_to_update = True
+            for b in j:
+                if '-master' in job['name']:
+                    new_job['name'] = new_job['name'].replace('-master', '')
+                    break
+                if '-' + b[branch_id] in job['name']:
+                    job_to_update = False
+                    break
+            if not job_to_update:
                 continue
             # Remplacement de chacunes des ressources pour la bonne ressource
             new_job = json.dumps(new_job)
