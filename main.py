@@ -105,7 +105,10 @@ def main():
               'Ressource that needs to be changed doesn\'t exist' + bcolors.ENDC)
         print(template_yml['resources'])
         sys.exit(1)
-
+    if not new_yaml.get('groups'):
+        new_yaml['groups'] = [{'name': 'main', 'jobs': []}]
+    else:
+        new_yaml['groups'][0]['jobs'] = []
     # For each branch in the repository
     for branch_info in j:
         # Get the branch name
@@ -137,9 +140,6 @@ def main():
         new_yaml['resources'].append(new_resource)
 
         # Create a group if the config file has no group
-        if not new_yaml.get('groups'):
-            new_yaml['groups'] = [{'name': 'main', 'jobs': []}]
-
         # Creating new task to match the branch information
         for job in template_yml['jobs']:
             new_job = copy.deepcopy(job)
