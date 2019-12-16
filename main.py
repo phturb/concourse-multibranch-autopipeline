@@ -81,7 +81,7 @@ def main():
               'Creating job for branch name : {}'.format(branch_name) + bcolors.ENDC)
         if ressource_i == -1:
             ressource_position = find_ressource_index(
-                'git-' + branch_name, ressource_to_replace)
+                'git-{}'.format(branch_name), ressource_to_replace)
             if ressource_position == -1:
                 ressource_position = find_ressource_index(
                     'git-master', ressource_to_replace)
