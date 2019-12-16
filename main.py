@@ -1,3 +1,8 @@
+'''
+    This script allows to gather information from a concourse pipeline and replicate the pipeline
+    for all the branches included in a git repository. Works with github and bitbucket
+    Only uses basic auth or no auth. 
+'''
 import requests
 import sys
 import os
@@ -7,6 +12,10 @@ import json
 
 
 class bcolors:
+    '''
+    Terminal colors
+    Start your text with a {clolor} then end your string with ENDC
+    '''
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKGREEN = '\033[92m'
@@ -24,6 +33,9 @@ class bcolors:
 
 
 def find_ressource_index(ressources, value_to_find):
+    '''
+    Find the index for the ressource that has the name of the value_to_find
+    '''
     for i, ressource in enumerate(ressources):
         if ressource['name'] == value_to_find:
             return i
@@ -31,13 +43,26 @@ def find_ressource_index(ressources, value_to_find):
 
 
 def main():
-    project = os.getenv('PROJECT')
-    git_type = os.getenv('GIT_TYPE')
-    git_api = os.getenv('GIT_API')
-    repo = os.getenv('REPO')
-    ressource_to_replace = os.getenv('REPLACED_RESSOURCE')
-    out_folder = os.getenv('OUT_FOLDER')
-    pipeline_file = os.pardir + '/' + os.getenv('PIPELINE_FILENAME')
+    # Definition of variables from ENV variables
+    try:
+        project = os.getenv('PROJECT')
+        git_type = os.getenv('GIT_TYPE')
+        git_api = os.getenv('GIT_API')
+        repo = os.getenv('REPO')
+        ressource_to_replace = os.getenv('REPLACED_RESSOURCE')
+        out_folder = os.getenv('OUT_FOLDER')
+        pipeline_file = os.pardir + '/' + os.getenv('PIPELINE_FILENAME')
+    except:
+        print(bcolors.FAIL +
+              'Missing ENV variables' + bcolors.ENDC)
+        sys.exit(1)
+    # Checking if there is branch exception
+    try:
+        branch_exception = os.getenv('BRANCH_EXCEPTION')
+    except:
+        branch_exception = []
+
+    # Checking if there is an api username and password
     try:
         username = os.getenv('API_USERNAME')
         password = os.getenv('API_PASSWORD')
@@ -45,14 +70,15 @@ def main():
         username = ""
         password = ""
 
+    # Opening the files to update the configuration
     print(bcolors.HEADER + 'Opening the file {} to replace the ressource : {}'.format(
         pipeline_file, ressource_to_replace) + bcolors.ENDC)
-
     with open(pipeline_file, 'r') as f:
         template_yml = yaml.load(f, Loader=yaml.FullLoader)
     new_yaml = copy.deepcopy(template_yml)
     new_yaml['jobs'] = []
 
+    # Gathering information on branches from the repository
     print(bcolors.UNDERLINE + 'Gathering branch info from repository' + bcolors.ENDC)
     if username != "" and password != "":
         res = requests.get(
@@ -63,9 +89,13 @@ def main():
         print(bcolors.FAIL + 'Error with branches gathering request' + bcolors.ENDC)
         print(res.json())
         sys.exit(1)
+
+    # Process the request answer
     j = res.json()
     if git_type == 'bitbucket':
         j = j['values']
+
+    # Verify that the resource that needs to be changed exist
     ressource_i = find_ressource_index(
         template_yml['resources'], ressource_to_replace)
     if(ressource_i == -1):
@@ -73,51 +103,79 @@ def main():
         print(bcolors.FAIL +
               'Ressource that needs to be changed doesn\'t exist' + bcolors.ENDC)
         print(template_yml['resources'])
-
         sys.exit(1)
-    for branch_info in j:
-        if git_type == 'bitbucket':
-            branch_name = branch_info['displayId']
-        else:
-            branch_name = branch_info['name']
 
+    # For each branch in the repository
+    for branch_info in j:
+        # Get the branch name
+        if git_type == 'bitbucket':
+            name_id = 'displayId'
+        else:
+            name_id = 'name'
+        branch_name = branch_info[name_id]
+
+        # Verify that the branch is not in the exception list
+        if branch_name in branch_exception:
+            print(bcolors.WARNING +
+                  'Skipping branch : {}'.format(branch_name) + bcolors.ENDC)
+            continue
+
+        # Creation of the job for the branch
         print(bcolors.BLUE +
               'Creating job for branch name : {}'.format(branch_name) + bcolors.ENDC)
-
-        new_ressource = copy.deepcopy(template_yml['resources'][ressource_i])
-        new_ressource['source']['branch'] = branch_name
-        new_ressource['name'] = 'git-' + branch_name
+        # Cration of the resource for the branch
+        new_resource_name = 'git-' + branch_name
+        new_resource = copy.deepcopy(template_yml['resources'][ressource_i])
+        new_resource['source']['branch'] = branch_name
+        new_resource['name'] = new_resource_name
 
         print(
             ' - New ressource name : {}'.format(new_yaml['resources'][ressource_i]['name']))
 
-        new_yaml['resources'].append(new_ressource)
+        # Appending the resource to the new config file
+        new_yaml['resources'].append(new_resource)
+
+        # Create a group if the config file has no group
         if not new_yaml.get('groups'):
             new_yaml['groups'] = [{'name': 'main', 'jobs': []}]
+
+        # Creating new task to match the branch information
         for job in template_yml['jobs']:
             new_job = copy.deepcopy(job)
             new_job = json.dumps(new_job)
-            new_job = new_job.replace(
-                job['name'], job['name'] + '-' + branch_name)
-            new_job = new_job.replace(
-                ressource_to_replace, 'git-' + branch_name)
 
-            print(
-                ' - New job name : {}'.format(job['name'] + '-' + branch_name))
+            # Replacing the resource name with the new one
+            new_job_name = job['name'] + '-' + branch_name
+            new_job = new_job.replace(
+                job['name'], new_job_name)
+            new_job = new_job.replace(
+                ressource_to_replace, new_resource_name)
+            print(' - New job name : {}'.format(new_job_name))
 
-            new_yaml['groups'][0]['jobs'].append(
-                job['name'] + '-' + branch_name)
+            # Add the job to the group
+            new_yaml['groups'][0]['jobs'].append(new_job_name)
+
+            # Add the mapping of input for the new resource to match in the tasks
+            # Replace the name for the new resource name
             new_job = json.loads(new_job)
             for j, plan in enumerate(new_job['plan']):
                 if plan.get('task') and plan.get('file'):
+                    # Map the old resource with the new resource for input
                     new_job['plan'][j]['input_mapping'] = {
-                        ressource_to_replace: 'git-' + branch_name}
+                        ressource_to_replace: new_resource_name}
+                    # Map the old resource with the new resource for output
                     new_job['plan'][j]['output_mapping'] = {
-                        ressource_to_replace: 'git-' + branch_name}
+                        ressource_to_replace: new_resource_name}
                     print(' - I/O mapping for task file {}'.format(plan.get('file')))
+                    print('   - {} to {}'.format(
+                        ressource_to_replace, new_resource_name))
+            # Add the task to the new job task list
             new_yaml['jobs'].append(new_job)
+
+    # Remove the original resource that has been updated
     new_yaml['resources'].pop(ressource_i)
 
+    # Show infromation about the new group created
     print(bcolors.BLUE + 'New groups :' + bcolors.ENDC)
 
     for group in new_yaml['groups']:
@@ -126,11 +184,15 @@ def main():
     print(bcolors.UNDERLINE + 'The pipeline will be written in {}/{}/new_pipeline.yaml'.format(
         os.pardir, out_folder) + bcolors.ENDC)
 
+    # Write the pipeline config in a new file defined by the env variables
     with open('{}/{}/new_pipeline.yaml'.format(os.pardir, out_folder), 'w') as f:
         noalias_dumper = yaml.dumper.SafeDumper
         noalias_dumper.ignore_aliases = lambda self, data: True
         yaml.dump(new_yaml, f, default_flow_style=False, Dumper=noalias_dumper)
 
+    print(bcolors.BLUE + 'Here is the new configuration for the pipeline' + bcolors.ENDC)
+    print(yaml.dumps(new_yaml))
+    # Jobs done
     print(bcolors.GREEN + 'Job done !!!' + bcolors.ENDC)
 
 
