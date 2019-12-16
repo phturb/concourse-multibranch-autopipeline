@@ -21,6 +21,11 @@ resources:
     icon: github-circle
     source:
       uri: https://github.com/phturb/concourse-multibranch-autopipeline.git
+  - name: pipeline-git
+    type: git
+    icon: github-circle
+    source:
+      uri: https://github.com/phturb/concourse-multibranch-autopipeline.git
   - name: my-pipeline
     type: concourse-pipeline
     icon: pipe
@@ -39,12 +44,13 @@ jobs:
       - get: 5m
         trigger: true
       - get: branch-script
+      - get: pipeline-git
       - get: my-pipeline
       - task: create-branch-pipeline
         config:
           inputs:
             - name: branch-script
-            - name: my-pipeline
+            - name: pipeline-git
           outputs:
             - name: ((out_folder))
           platform: linux
@@ -58,7 +64,7 @@ jobs:
             PROJECT: ((project))
             REPO: ((repo))
             OUT_FOLDER: ((out_folder))
-            PIPELINE_FILENAME: my-pipeline/((team_name))-((pipeline_name)).yml
+            PIPELINE_FILENAME: pipeline-git/((pipeline_filename))
             GIT_TYPE: ((git_type))
             GIT_API: ((api_url))
             API_USERNAME: ""
