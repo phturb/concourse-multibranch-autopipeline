@@ -18,3 +18,8 @@ jobs:
       - get: task-git
       - task: create-branch-pipeline
         file: task-git/task-maker.yaml
+
+groups:
+  - name: dev
+    jobs:
+      - multibranch-pipeline-generator

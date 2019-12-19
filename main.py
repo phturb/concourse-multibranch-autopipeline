@@ -42,6 +42,21 @@ def find_ressource_index(ressources, value_to_find):
     return -1
 
 
+def find_group_index(groups, value_to_find):
+    '''
+    Find the index for the ressource that has the name of the value_to_find
+    '''
+    for i, g in enumerate(groups):
+        if g['name'] == value_to_find:
+            return i
+    return -1
+
+
+def get_jobs_list(groups, group_name):
+    group_index = find_group_index(groups, group_name)
+    return groups[group_index]['jobs']
+
+
 def main():
     # Definition of variables from ENV variables
     try:
@@ -62,6 +77,11 @@ def main():
         branch_exception = branch_exception.split(" ")
     except:
         branch_exception = []
+
+    try:
+        group = os.getenv('GROUP')
+    except:
+        group = ""
 
     # Checking if there is an api username and password
     try:
@@ -92,9 +112,9 @@ def main():
         sys.exit(1)
 
     # Process the request answer
-    j = res.json()
+    res_json = res.json()
     if git_type == 'bitbucket':
-        j = j['values']
+        res_json = res_json['values']
 
     # Verify that the resource that needs to be changed exist
     ressource_i = find_ressource_index(
@@ -105,12 +125,23 @@ def main():
               'Ressource that needs to be changed doesn\'t exist' + bcolors.ENDC)
         print(template_yml['resources'])
         sys.exit(1)
-    if not new_yaml.get('groups'):
+    job_list = []
+    if not template_yml.get('groups'):
         new_yaml['groups'] = [{'name': 'main', 'jobs': []}]
+        for job in template_yml['jobs']:
+            job_list.append(job['name'])
+        group_index = 0
+    elif group != '':
+        job_list = get_jobs_list(template_yml['groups'], group)
+        group_index = find_group_index(template_yml['groups'], group)
+        group_index = group_index if group_index != -1 else 0
+        new_yaml['groups'][group_index]['jobs'] = []
     else:
-        new_yaml['groups'][0]['jobs'] = []
+        for job in template_yml['jobs']:
+            job_list.append(job['name'])
+        group_index = 0
     # For each branch in the repository
-    for branch_info in j:
+    for branch_info in res_json:
         # Get the branch name
         if git_type == 'bitbucket':
             name_id = 'displayId'
@@ -142,36 +173,40 @@ def main():
         # Create a group if the config file has no group
         # Creating new task to match the branch information
         for job in template_yml['jobs']:
-            new_job = copy.deepcopy(job)
-            new_job = json.dumps(new_job)
+            if job['name'] in job_list:
+                new_job = copy.deepcopy(job)
+                new_job = json.dumps(new_job)
 
-            # Replacing the resource name with the new one
-            new_job_name = job['name'] + '-' + branch_name
-            new_job = new_job.replace(
-                job['name'], new_job_name)
-            new_job = new_job.replace(
-                ressource_to_replace, new_resource_name)
-            print(' - New job name : {}'.format(new_job_name))
+                # Replacing the resource name with the new one
+                new_job_name = job['name'] + '-' + branch_name
+                new_job = new_job.replace(
+                    job['name'], new_job_name)
+                new_job = new_job.replace(
+                    ressource_to_replace, new_resource_name)
+                print(' - New job name : {}'.format(new_job_name))
+                for j in job_list:
+                    new_job = new_job.replace(
+                        j, j + '-' + branch_name)
+                # Add the job to the group
+                new_yaml['groups'][group_index]['jobs'].append(new_job_name)
 
-            # Add the job to the group
-            new_yaml['groups'][0]['jobs'].append(new_job_name)
-
-            # Add the mapping of input for the new resource to match in the tasks
-            # Replace the name for the new resource name
-            new_job = json.loads(new_job)
-            for j, plan in enumerate(new_job['plan']):
-                if plan.get('task') and plan.get('file'):
-                    # Map the old resource with the new resource for input
-                    new_job['plan'][j]['input_mapping'] = {
-                        ressource_to_replace: new_resource_name}
-                    # Map the old resource with the new resource for output
-                    new_job['plan'][j]['output_mapping'] = {
-                        ressource_to_replace: new_resource_name}
-                    print(' - I/O mapping for task file {}'.format(plan.get('file')))
-                    print('   - {} to {}'.format(
-                        ressource_to_replace, new_resource_name))
-            # Add the task to the new job task list
-            new_yaml['jobs'].append(new_job)
+                # Add the mapping of input for the new resource to match in the tasks
+                # Replace the name for the new resource name
+                new_job = json.loads(new_job)
+                for res_json, plan in enumerate(new_job['plan']):
+                    if plan.get('task') and plan.get('file'):
+                        # Map the old resource with the new resource for input
+                        new_job['plan'][res_json]['input_mapping'] = {
+                            ressource_to_replace: new_resource_name}
+                        # Map the old resource with the new resource for output
+                        new_job['plan'][res_json]['output_mapping'] = {
+                            ressource_to_replace: new_resource_name}
+                        print(
+                            ' - I/O mapping for task file {}'.format(plan.get('file')))
+                        print('   - {} to {}'.format(
+                            ressource_to_replace, new_resource_name))
+                # Add the task to the new job task list
+                new_yaml['jobs'].append(new_job)
 
     # Remove the original resource that has been updated
     new_yaml['resources'].pop(ressource_i)
