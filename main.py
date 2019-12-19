@@ -217,6 +217,13 @@ def main():
                             ressource_to_replace, new_resource_name))
                 # Add the task to the new job task list
                 new_yaml['jobs'].append(new_job)
+    # Add the job that are not changed
+    print(bcolors.BLUE + 'Adding unaltered job' + bcolors.ENDC)
+    for job in template_yml['jobs']:
+        if not job['name'] in job_list:
+            print(' - Adding {}'.format(job['name']))
+            new_job = copy.deepcopy(job)
+            new_yaml['jobs'].append(new_job)
 
     # Remove the original resource that has been updated
     new_yaml['resources'].pop(ressource_i)
