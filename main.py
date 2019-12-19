@@ -192,6 +192,7 @@ def main():
                     ressource_to_replace, new_resource_name)
                 print(' - New job name : {}'.format(new_job_name))
                 for j in job_list:
+                    ('  - Replacing {} with {}'.format(j, j + '-' + branch_name))
                     new_job = new_job.replace(
                         j, j + '-' + branch_name)
                 # Add the job to the group
