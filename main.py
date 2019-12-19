@@ -135,11 +135,11 @@ def main():
         job_list = get_jobs_list(template_yml['groups'], group)
         group_index = find_group_index(template_yml['groups'], group)
         group_index = group_index if group_index != -1 else 0
-        new_yaml['groups'][group_index]['jobs'] = []
     else:
         for job in template_yml['jobs']:
             job_list.append(job['name'])
         group_index = 0
+    new_yaml['groups'][group_index]['jobs'] = []
 
     print(bcolors.BLUE + 'The group that will be replicated is :' + bcolors.ENDC)
     print(' - {}'.format(new_yaml['groups'][group_index]['name']))
