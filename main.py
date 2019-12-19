@@ -9,6 +9,7 @@ import os
 import yaml
 import copy
 import json
+import re
 
 
 class bcolors:
@@ -186,10 +187,14 @@ def main():
 
                 # Replacing the resource name with the new one
                 new_job_name = job['name'] + '-' + branch_name
-                new_job = new_job.replace(
-                    job['name'], new_job_name)
-                new_job = new_job.replace(
-                    ressource_to_replace, new_resource_name)
+                regex = r'/\b(' + job['name'] + r')\b/i'
+                new_job = re.sub(regex, new_job_name, new_job)
+                # new_job = new_job.replace(
+                #     job['name'], new_job_name)
+                regex = r'/\b(' + ressource_to_replace + r')\b/i'
+                new_job = re.sub(regex, new_resource_name, new_job)
+                # new_job = new_job.replace(
+                #     ressource_to_replace, new_resource_name)
                 print(' - New job name : {}'.format(new_job_name))
                 for j in job_list:
                     if j != job['name']:
