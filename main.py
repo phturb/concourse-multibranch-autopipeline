@@ -186,14 +186,14 @@ def main():
 
                 # Replacing the resource name with the new one
                 new_job_name = job['name'] + '-' + branch_name
-                reg_res = r'\s\b(' + ressource_to_replace + r')\b\s'
+                reg_res = r'(?<=")\b(' + ressource_to_replace + r')\b(?=")'
                 new_job = re.sub(reg_res, new_resource_name, new_job)
                 print(new_job)
                 print(' - New job name : {}'.format(new_job_name))
                 for j in job_list:
                     print('  - Replacing {} with {}'.format(j,
                                                             j + '-' + branch_name))
-                    reg_j = r'\s\b(' + j + r')\b\s'
+                    reg_j = r'(?<=")\b(' + j + r')\b(?=")'
                     new_job = re.sub(reg_j, j + '-' + branch_name, new_job)
                     print(new_job)
                 # Add the job to the group
