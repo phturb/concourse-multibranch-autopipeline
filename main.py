@@ -140,6 +140,13 @@ def main():
         for job in template_yml['jobs']:
             job_list.append(job['name'])
         group_index = 0
+
+    print(bcolors.BLUE + 'The group that will be replicated is :' + bcolors.ENDC)
+    print(' - {}'.format(new_yaml['groups'][group_index]['name']))
+    print(bcolors.BLUE +
+          'The jobs that will be replicated for each branch are :' + bcolors.ENDC)
+    for job in job_list:
+        print(' - {}'.format(job))
     # For each branch in the repository
     for branch_info in res_json:
         # Get the branch name
