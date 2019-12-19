@@ -21,10 +21,15 @@ jobs:
   - name: other-group-task
     public: true
     plan:
-      - config:
-        path: echo
-        args:
-          - HelloWorld
+      - task: simple-task
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: { repository: busybox }
+          run:
+            path: echo
+            args: ["Hello, world!"]
 
 groups:
   - name: dev
