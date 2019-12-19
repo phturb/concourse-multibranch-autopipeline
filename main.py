@@ -188,19 +188,15 @@ def main():
                 new_job_name = job['name'] + '-' + branch_name
                 reg_job = r'\b(' + job['name'] + r')\b'
                 new_job = re.sub(reg_job, new_job_name, new_job)
-                # new_job = new_job.replace(
-                #     job['name'], new_job_name)
                 reg_res = r'\b(' + ressource_to_replace + r')\b'
                 new_job = re.sub(reg_res, new_resource_name, new_job)
-                # new_job = new_job.replace(
-                #     ressource_to_replace, new_resource_name)
                 print(' - New job name : {}'.format(new_job_name))
                 for j in job_list:
                     if j != job['name']:
                         print('  - Replacing {} with {}'.format(j,
                                                                 j + '-' + branch_name))
-                        new_job = new_job.replace(
-                            j, j + '-' + branch_name)
+                        reg_j = r'\b(' + j + r')\b'
+                        new_job = re.sub(reg_j, j + '-' + branch_name, new_job)
                 # Add the job to the group
                 new_yaml['groups'][group_index]['jobs'].append(new_job_name)
 
