@@ -177,7 +177,6 @@ def main():
 
         # Appending the resource to the new config file
         new_yaml['resources'].append(new_resource)
-
         # Create a group if the config file has no group
         # Creating new task to match the branch information
         for job in template_yml['jobs']:
@@ -187,12 +186,12 @@ def main():
 
                 # Replacing the resource name with the new one
                 new_job_name = job['name'] + '-' + branch_name
-                regex = r'/\b(' + job['name'] + r')\b/i'
-                new_job = re.sub(regex, new_job_name, new_job)
+                reg_job = r'\b(' + job['name'] + r')\b'
+                new_job = re.sub(reg_job, new_job_name, new_job)
                 # new_job = new_job.replace(
                 #     job['name'], new_job_name)
-                regex = r'/\b(' + ressource_to_replace + r')\b/i'
-                new_job = re.sub(regex, new_resource_name, new_job)
+                reg_res = r'\b(' + ressource_to_replace + r')\b'
+                new_job = re.sub(reg_res, new_resource_name, new_job)
                 # new_job = new_job.replace(
                 #     ressource_to_replace, new_resource_name)
                 print(' - New job name : {}'.format(new_job_name))
