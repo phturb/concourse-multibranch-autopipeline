@@ -46,6 +46,7 @@ jobs:
       - get: 5m
         trigger: true
       - get: branch-script
+        trigger: true
       - get: pipeline-git
       - get: my-pipeline
       - task: create-branch-pipeline
