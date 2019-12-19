@@ -71,7 +71,7 @@ jobs:
             GIT_API: ((api_url))
             API_USERNAME: ""
             API_PASSWORD: ""
-            GROUP:
+            GROUP: dev
             BRANCH_EXCEPTION: "prod test2"
           run:
             dir: ./branch-script

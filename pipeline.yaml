@@ -31,4 +31,5 @@ groups:
     jobs:
       - multibranch-pipeline-generator
   - name: other
-    jobs: other-group-task
+    jobs:
+      - other-group-task
