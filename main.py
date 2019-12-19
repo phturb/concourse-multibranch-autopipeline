@@ -227,6 +227,20 @@ def main():
     # Remove the original resource that has been updated
     new_yaml['resources'].pop(ressource_i)
 
+    print('Verifying for double ressources')
+    resource_to_remove = []
+    for i, resource in enumerate(new_yaml['resources']):
+        for j, compare_resource in enumerate(new_yaml['resources']):
+            if i >= j:
+                continue
+            if resource['name'] == compare_resource['name']:
+                print(' - {} hase multiple instance'.format(resource['name']))
+                resource_to_remove.append(compare_resource)
+    print('Removing doublon :')
+    for rtr in resource_to_remove:
+        print('Removing : {}'.format(rtr['name']))
+        new_yaml['resources'].remove(rtr)
+
     # Show infromation about the new group created
     print(bcolors.BLUE + 'New groups :' + bcolors.ENDC)
 
