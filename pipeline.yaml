@@ -18,8 +18,17 @@ jobs:
       - get: task-git
       - task: create-branch-pipeline
         file: task-git/task-maker.yaml
+  - name: other-group-task
+    public: true
+    plan:
+      - config:
+        path: echo
+        args:
+          - HelloWorld
 
 groups:
   - name: dev
     jobs:
       - multibranch-pipeline-generator
+  - name: other
+    jobs: other-group-task
