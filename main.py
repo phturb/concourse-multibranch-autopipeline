@@ -188,14 +188,12 @@ def main():
                 new_job_name = job['name'] + '-' + branch_name
                 reg_res = r'(?<=")\b(' + ressource_to_replace + r')\b(?=")'
                 new_job = re.sub(reg_res, new_resource_name, new_job)
-                print(new_job)
                 print(' - New job name : {}'.format(new_job_name))
                 for j in job_list:
                     print('  - Replacing {} with {}'.format(j,
                                                             j + '-' + branch_name))
                     reg_j = r'(?<=")\b(' + j + r')\b(?=")'
                     new_job = re.sub(reg_j, j + '-' + branch_name, new_job)
-                    print(new_job)
                 # Add the job to the group
                 new_yaml['groups'][group_index]['jobs'].append(new_job_name)
 
@@ -233,6 +231,8 @@ def main():
         for j, compare_resource in enumerate(new_yaml['resources']):
             if i >= j:
                 continue
+            print('Comparing {} with {}'.format(
+                resource['name'], compare_resource['name']))
             if resource['name'] == compare_resource['name']:
                 print(' - {} hase multiple instance'.format(resource['name']))
                 resource_to_remove.append(compare_resource)
