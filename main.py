@@ -167,7 +167,7 @@ def main():
         print(bcolors.BLUE +
               'Creating job for branch name : {}'.format(branch_name) + bcolors.ENDC)
         # Cration of the resource for the branch
-        new_resource_name = 'git-' + branch_name
+        new_resource_name = 'git-b-' + branch_name
         new_resource = copy.deepcopy(template_yml['resources'][ressource_i])
         new_resource['source']['branch'] = branch_name
         new_resource['name'] = new_resource_name
@@ -185,7 +185,7 @@ def main():
                 new_job = json.dumps(new_job)
 
                 # Replacing the resource name with the new one
-                new_job_name = job['name'] + '-' + branch_name
+                new_job_name = job['name'] + '-b-' + branch_name
                 reg_res = r'(?<=")\b(' + ressource_to_replace + r')\b(?=")'
                 new_job = re.sub(reg_res, new_resource_name, new_job)
                 print(' - New job name : {}'.format(new_job_name))
@@ -193,7 +193,7 @@ def main():
                     print('  - Replacing {} with {}'.format(j,
                                                             j + '-' + branch_name))
                     reg_j = r'(?<=")\b(' + j + r')\b(?=")'
-                    new_job = re.sub(reg_j, j + '-' + branch_name, new_job)
+                    new_job = re.sub(reg_j, j + '-b-' + branch_name, new_job)
                 # Add the job to the group
                 new_yaml['groups'][group_index]['jobs'].append(new_job_name)
 
@@ -231,8 +231,6 @@ def main():
         for j, compare_resource in enumerate(new_yaml['resources']):
             if i >= j:
                 continue
-            print('Comparing {} with {}'.format(
-                resource['name'], compare_resource['name']))
             if resource['name'] == compare_resource['name']:
                 print(' - {} hase multiple instance'.format(resource['name']))
                 resource_to_remove.append(compare_resource)
